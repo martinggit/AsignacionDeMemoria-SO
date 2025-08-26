@@ -6,15 +6,15 @@ from particion import Particion
 from proceso import Proceso
 
 class Simulador:
-    def __init__(self, memoria_total, archivo_procesos, politica):
+    def __init__(self, memoria_total, archivo_procesos, politica, t_carga=0, t_seleccion=0, t_liberacion=0):
         self.memoria_total = memoria_total
         self.particiones = [Particion(memoria_total)]  # arranca con una partición grande
         self.procesos = self._cargar_procesos(archivo_procesos)
         self.tiempo = 0
         self.politica = politica
-        self.t_carga = 0
-        self.t_seleccion = 0
-        self.t_liberacion = 0
+        self.t_carga = t_carga
+        self.t_seleccion = t_seleccion
+        self.t_liberacion = t_liberacion
         self.pendientes =[] # Cola de espera, si un proceso no entra lo guardo hasta que se libere memoria
 
     def _cargar_procesos(self, archivo):

@@ -13,7 +13,9 @@ class Proceso:
         self.size = size            # tamaño de memoria requerido
         self.duracion = duracion    # tiempo que estará en memoria
         self.llegada = llegada      # instante de arribo
-        self.fin = llegada + duracion  # instante de finalización
+        self.fin = None             #Cambio/el fin depende de cuando lo asignen en memoria
+        self.asignado = False
+        self.inicio = None
 
     def __repr__(self):
         return (f"Proceso{{ id={self.id}, nombre='{self.nombre}', "

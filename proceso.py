@@ -18,6 +18,6 @@ class Proceso:
         self.inicio = None
 
     def __repr__(self):
-        return (f"Proceso{{ id={self.id}, nombre='{self.nombre}', "
+        return (f"Proceso {{id={self.id}, nombre='{self.nombre}', "
                 f"size={self.size}, duracion={self.duracion}, "
-                f"llegada={self.llegada}, fin={self.fin} }}")
+                f"llegada={self.llegada}, fin={self.fin}}}")

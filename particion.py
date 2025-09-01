@@ -1,11 +1,13 @@
 class Particion:
     _id_counter = 1
-    def __init__(self, size):
+
+    def __init__(self, inicio, size, libre=True, proceso=None):
         self.id = Particion._id_counter
         Particion._id_counter += 1
-        self.size = size
-        self.libre = True
-        self.proceso = None
+        self.inicio = inicio          # dirección inicial en memoria
+        self.size = size              # tamaño de la partición
+        self.libre = libre
+        self.proceso = proceso
         self.t_inicio = -1
         self.t_fin = -1
 
@@ -22,3 +24,7 @@ class Particion:
         self.libre = True
         self.t_inicio = -1
         self.t_fin = -1
+
+    def __repr__(self):
+        estado = "Libre" if self.libre else f"Ocupada por {self.proceso.nombre}"
+        return f"[Part {self.id}: inicio={self.inicio}, size={self.size}, {estado}]"

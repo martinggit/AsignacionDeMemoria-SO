@@ -16,8 +16,13 @@ class Particion:
         self.libre = False
         self.t_inicio = tiempo_actual + t_seleccion
         self.t_fin = self.t_inicio + proceso.duracion + t_carga + t_liberacion
-        proceso.inicio = self.t_inicio
+        proceso.inicio = self.t_inicio  #instante en que empieza a ejecutarse 
         proceso.asignado = True
+        proceso.fin = self.t_fin        #instante en que el proceso termina totalmente (ejecucion + carga + liberación)
+
+        #El proceso se asigna en el instante en que llega, pero se ejecuta recién en t_inicio=llegada+t_seleccion
+        # t_fin de igual manera, incluye carga y liberación
+        # Un proceso recién empieza a usar CPU/Memoria despues del t_seleccion
 
     def liberar(self):
         self.proceso = None

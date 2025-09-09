@@ -32,10 +32,12 @@ t_carga = int(input("Ingrese tiempo de carga promedio: "))
 t_seleccion = int(input("Ingrese tiempo de selección de partición: "))
 t_liberacion = int(input("Ingrese tiempo de liberación de partición: "))
 
+archivo = input("Ingrese el nombre de la tanda de procesos (ej: tanda1.json): ")
+
 # Crear y correr simulador
 sim = Simulador(
     memoria_total=memoria_total,
-    archivo_procesos="procesos.json",
+    archivo_procesos=archivo,
     politica=politica,
     t_carga = t_carga,
     t_seleccion = t_seleccion,

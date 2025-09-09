@@ -1,0 +1,7 @@
+[
+  {"nombre": "X1", "size": 40, "duracion": 8, "llegada": 0},
+  {"nombre": "X2", "size": 30, "duracion": 6, "llegada": 0},
+  {"nombre": "X3", "size": 20, "duracion": 4, "llegada": 0},
+  {"nombre": "X4", "size": 15, "duracion": 3, "llegada": 0},
+  {"nombre": "X5", "size": 10, "duracion": 2, "llegada": 0}
+]

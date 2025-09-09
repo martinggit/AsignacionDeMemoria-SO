@@ -6,7 +6,7 @@ from particion import Particion
 from proceso import Proceso
 
 class Simulador:
-    def __init__(self, memoria_total, archivo_procesos, politica, t_carga=0, t_seleccion=0, t_liberacion=0):
+    def __init__(self, memoria_total, archivo_procesos, politica, t_carga=0, t_seleccion=0, t_liberacion=0, archivo_log="eventos.txt"):
         self.memoria_total = memoria_total
         self.particiones = [Particion(0, memoria_total)]  # arranca con 1 partición libre
         self.procesos = self._cargar_procesos(archivo_procesos)
@@ -17,6 +17,21 @@ class Simulador:
         self.t_liberacion = t_liberacion
         self.pendientes =[] # Cola de espera, si un proceso no entra lo guardo hasta que se libere memoria
         self.fragmentaciones = []  # guardamos los valores de frag externa en cada t
+        self.archivo_log = archivo_log
+
+
+        with open(self.archivo_log, "w", encoding="utf-8") as f:
+            f.write("Simulación de eventos de memoria\n\n") 
+
+
+    def _log_evento(self, tipo, descripcion):
+        with open(self.archivo_log, "a", encoding="utf-8") as f:
+            f.write(f"[Tiempo {self.tiempo}] [{tipo}] {descripcion}\n")
+
+    def _log_memoria(self):
+        estado = " | ".join(str(p) for p in self.particiones)
+        frag = self.calcular_fragmentacion_externa()
+        self._log_evento("MEMORIA", f"Estado actual → [{estado}] (Frag. externa={frag:.2f}%)")
 
     def _cargar_procesos(self, archivo):
         with open(archivo, "r") as f:
@@ -44,10 +59,20 @@ class Simulador:
             idx = self.particiones.index(particion)
             self.particiones.insert(idx + 1, nueva)
 
+        # evento: selección de partición
+        self._log_evento("SELECCIÓN", f"Seleccionada {particion} para {proceso.nombre} (t_sel={self.t_seleccion})")
+
         # asignar el proceso
         particion.asignar(proceso, self.tiempo, self.t_carga, self.t_seleccion, self.t_liberacion)
+        
+        # evento: carga del proceso (cuando realmente empieza a residir en memoria)
+        inicio_residencia = proceso.inicio + self.t_carga
+        self._log_evento("CARGA", f"{proceso.nombre} cargado; inicio_residencia={inicio_residencia} (t_carga={self.t_carga})")
+        
         print(f"Asignado {proceso.nombre} en {particion}")
         print(f"→ Datos del proceso {proceso.nombre}: inicio={proceso.inicio}, fin={proceso.fin}")
+        self._log_evento("ASIGNACIÓN", f"{proceso.nombre} asignado a {particion}")
+        self._log_memoria()
 
     def merge_particiones(self):
         i = 0
@@ -58,6 +83,7 @@ class Simulador:
                 # fusionar
                 actual.size += siguiente.size
                 self.particiones.pop(i + 1)
+                self._log_evento("MERGE", f"Se fusionaron particiones libres en {actual}")
             else:
                 i += 1
 
@@ -86,17 +112,21 @@ class Simulador:
             for part in self.particiones:
                 if not part.libre and part.t_fin == self.tiempo:
                     print(f"Liberando {part.proceso.nombre} de {part}")
+                    self._log_evento("LIBERACIÓN", f"{part.proceso.nombre} liberó {part}")
                     part.liberar()
                     self.merge_particiones()
+                    self._log_memoria()
 
             # Llegan procesos en este instante
             for proceso in [p for p in self.procesos if p.llegada == self.tiempo]:
                 print(f"Llega {proceso}")
+                self._log_evento("LLEGADA", f"Proceso {proceso.nombre} llega al sistema")
                 part = self.politica(self.particiones, proceso)
                 if part:
                     self.asignar_particion(part, proceso)
                 else:
                     print(f"No hay espacio para {proceso.nombre}, queda en espera.")
+                    self._log_evento("ESPERA", f"No hay espacio para {proceso.nombre}, queda en espera")
                     self.pendientes.append(proceso)
 
             # Reintentar asignar pendientes
@@ -117,6 +147,7 @@ class Simulador:
         self.merge_particiones()
         print("Estado final de memoria:", self.particiones)
         print("\n Simulación finalizada")
+        self._log_evento("FIN", "Simulación finalizada")
 
         # Calcular estadísticas
         print("\n--- TIEMPOS ---")
@@ -137,3 +168,11 @@ class Simulador:
             max_frag = max(self.fragmentaciones)
             print(f"\nFragmentación Externa Promedio = {promedio_frag:.2f}%")
             print(f"Fragmentación Externa Máxima = {max_frag:.2f}%")
+        
+        # Tiempo de retorno de la tanda (batch)
+        llegada_min = min(p.llegada for p in self.procesos)
+        fin_max = max(p.fin for p in self.procesos if p.fin is not None)
+        tanda_tr = fin_max - llegada_min
+        print(f"\nTiempo de Retorno de la tanda = {tanda_tr}")
+        self._log_evento("RESUMEN", f"Tiempo de Retorno de la tanda = {tanda_tr}")
+

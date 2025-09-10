@@ -29,6 +29,7 @@ El simulador soporta diferentes **estrategias de ubicación de procesos**:
 ---
 
 ## 🚀 Ejecución
+El simulador **no requiere instalar librerías externas** (solo Python 3).
 
 ### Clonar el repositorio
 ```bash

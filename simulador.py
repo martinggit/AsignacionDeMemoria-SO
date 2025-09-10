@@ -18,6 +18,7 @@ class Simulador:
         self.pendientes =[] # Cola de espera, si un proceso no entra lo guardo hasta que se libere memoria
         self.fragmentaciones = []  # guardamos los valores de frag externa en cada t
         self.archivo_log = archivo_log
+        self.ife_total = 0  # índice de fragmentación externa 
 
 
         with open(self.archivo_log, "w", encoding="utf-8") as f:
@@ -30,8 +31,7 @@ class Simulador:
 
     def _log_memoria(self):
         estado = " | ".join(str(p) for p in self.particiones)
-        frag = self.calcular_fragmentacion_externa()
-        self._log_evento("MEMORIA", f"Estado actual → [{estado}] (Frag. externa={frag:.2f}%)")
+        self._log_evento("MEMORIA", f"Estado actual → [{estado}]")
 
     def _cargar_procesos(self, archivo):
         with open(archivo, "r") as f:
@@ -86,16 +86,9 @@ class Simulador:
                 self._log_evento("MERGE", f"Se fusionaron particiones libres en {actual}")
             else:
                 i += 1
-
-    # Frag. Ext. = (Memoria Libre - mayor hueco libre) / Memoria Total
-    def calcular_fragmentacion_externa(self):
-        memoria_libre = sum(p.size for p in self.particiones if p.libre)
-        if memoria_libre == 0:
-            return 0.0
-
-        mayor_hueco = max((p.size for p in self.particiones if p.libre), default=0)
-        frag = (memoria_libre - mayor_hueco) / self.memoria_total * 100
-        return frag
+    
+    def calcular_memoria_libre(self):
+        return sum(p.size for p in self.particiones if p.libre)
     
     def correr(self, tiempo_max):
         print(f"Simulación iniciada con {len(self.procesos)} procesos.\n")
@@ -103,10 +96,12 @@ class Simulador:
             print(f"\nTiempo: {self.tiempo}")
             print("Estado de memoria:", self.particiones)
 
-            # Calcular frag externa 
-            frag = self.calcular_fragmentacion_externa()
-            self.fragmentaciones.append(frag)
-            print(f"Fragmentación externa: {frag:.2f}%")
+            #I.F.E. = P( memoria no asignada * tiempo que permanece en esa condición). "Mientras haya trabajos esperando parasu ejecución"
+            # Calcular IFE si hay procesos esperando
+            if self.pendientes:
+                memoria_libre = self.calcular_memoria_libre()
+                self.ife_total += memoria_libre
+                print(f"IFE acumulado: {self.ife_total}")
 
             # Liberar procesos terminados
             for part in self.particiones:
@@ -162,12 +157,7 @@ class Simulador:
             promedio = sum(tiempos_retorno) / len(tiempos_retorno)
             print(f"\nTiempo Medio de Retorno = {promedio:.2f}")
 
-        # Promedio de fragmentación externa
-        if self.fragmentaciones:
-            promedio_frag = sum(self.fragmentaciones) / len(self.fragmentaciones)
-            max_frag = max(self.fragmentaciones)
-            print(f"\nFragmentación Externa Promedio = {promedio_frag:.2f}%")
-            print(f"Fragmentación Externa Máxima = {max_frag:.2f}%")
+        print(f"Índice de Fragmentación Externa total = {self.ife_total}")
         
         # Tiempo de retorno de la tanda (batch)
         llegada_min = min(p.llegada for p in self.procesos)

@@ -54,6 +54,5 @@ Ingrese tiempo de carga promedio: 2
 Ingrese tiempo de selección de partición: 2
 Ingrese tiempo de liberación de partición: 2
 Ingrese el nombre de la tanda de procesos (ej: tanda1.json): tanda1.json
-Ingrese tiempo máximo de simulación: 100 
 ```
-⚠️ Nota: El tiempo máximo de simulación debe ser suficientemente grande para asegurar que todos los procesos finalicen. Se usa solo como límite de seguridad.
+✅ La simulación termina automáticamente cuando ya no quedan procesos activos ni en espera.

@@ -44,6 +44,5 @@ sim = Simulador(
     t_liberacion = t_liberacion,
 )
 
-tiempo_max = int(input("Ingrese tiempo máximo de simulación: "))
-sim.correr(tiempo_max)
+sim.correr()
 

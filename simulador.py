@@ -16,7 +16,6 @@ class Simulador:
         self.t_seleccion = t_seleccion
         self.t_liberacion = t_liberacion
         self.pendientes =[] # Cola de espera, si un proceso no entra lo guardo hasta que se libere memoria
-        self.fragmentaciones = []  # guardamos los valores de frag externa en cada t
         self.archivo_log = archivo_log
         self.ife_total = 0  # índice de fragmentación externa 
 
@@ -90,9 +89,9 @@ class Simulador:
     def calcular_memoria_libre(self):
         return sum(p.size for p in self.particiones if p.libre)
     
-    def correr(self, tiempo_max):
+    def correr(self):
         print(f"Simulación iniciada con {len(self.procesos)} procesos.\n")
-        while self.tiempo <= tiempo_max:
+        while True:
             print(f"\nTiempo: {self.tiempo}")
             print("Estado de memoria:", self.particiones)
 

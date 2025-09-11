@@ -28,8 +28,11 @@ if politica is None:
     print("Opción no válida, usando first_fit por defecto")
     politica = first_fit
 
+# Tiempo que se tarda un proceso en cargar en memoria
 t_carga = int(input("Ingrese tiempo de carga promedio: "))
+# Tiempo que se tarda en seleccionar una partición
 t_seleccion = int(input("Ingrese tiempo de selección de partición: "))
+# Tiempo que se tarda en liberar la partición una vez que el proceso termina
 t_liberacion = int(input("Ingrese tiempo de liberación de partición: "))
 
 archivo = input("Ingrese el nombre de la tanda de procesos (ej: tanda1.json): ")

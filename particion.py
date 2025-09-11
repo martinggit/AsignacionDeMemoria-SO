@@ -14,8 +14,10 @@ class Particion:
     def asignar(self, proceso, tiempo_actual, t_carga, t_seleccion, t_liberacion):
         self.proceso = proceso
         self.libre = False
-        self.t_inicio = tiempo_actual + t_seleccion
-        self.t_fin = self.t_inicio + proceso.duracion + t_carga + t_liberacion
+        self.t_inicio = tiempo_actual + t_seleccion # No arranca en el arribo, sino recién despues de este tiempo
+        self.t_fin = self.t_inicio + proceso.duracion + t_carga + t_liberacion  
+        # Tiempo de carga hace que el proceso permanezca más tiempo en memoria 
+        # Tiempo de liberacion, cuando un proceso termina, libera recien despues de ese tiempo extra 
         proceso.inicio = self.t_inicio  #instante en que empieza a ejecutarse 
         proceso.asignado = True
         proceso.fin = self.t_fin        #instante en que el proceso termina totalmente (ejecucion + carga + liberación)

@@ -70,6 +70,7 @@ class Simulador:
         
         print(f"Asignado {proceso.nombre} en {particion}")
         print(f"→ Datos del proceso {proceso.nombre}: inicio={proceso.inicio}, fin={proceso.fin}")
+        print("Estado de memoria:", self.particiones)
         self._log_evento("ASIGNACIÓN", f"{proceso.nombre} asignado a {particion}")
         self._log_memoria()
 

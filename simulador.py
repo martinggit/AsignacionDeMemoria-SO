@@ -96,13 +96,6 @@ class Simulador:
             print(f"\nTiempo: {self.tiempo}")
             print("Estado de memoria:", self.particiones)
 
-            #I.F.E. = P( memoria no asignada * tiempo que permanece en esa condición). "Mientras haya trabajos esperando parasu ejecución"
-            # Calcular IFE si hay procesos esperando
-            if self.pendientes:
-                memoria_libre = self.calcular_memoria_libre()
-                self.ife_total += memoria_libre
-                print(f"IFE acumulado: {self.ife_total}")
-
             # Liberar procesos terminados
             for part in self.particiones:
                 if not part.libre and part.t_fin == self.tiempo:
@@ -116,13 +109,7 @@ class Simulador:
             for proceso in [p for p in self.procesos if p.llegada == self.tiempo]:
                 print(f"Llega {proceso}")
                 self._log_evento("LLEGADA", f"Proceso {proceso.nombre} llega al sistema")
-                part = self.politica(self.particiones, proceso)
-                if part:
-                    self.asignar_particion(part, proceso)
-                else:
-                    print(f"No hay espacio para {proceso.nombre}, queda en espera.")
-                    self._log_evento("ESPERA", f"No hay espacio para {proceso.nombre}, queda en espera")
-                    self.pendientes.append(proceso)
+                self.pendientes.append(proceso)
 
             # Reintentar asignar pendientes
             for proceso in list(self.pendientes): 
@@ -130,7 +117,16 @@ class Simulador:
                 if part:
                     self.asignar_particion(part, proceso)
                     self.pendientes.remove(proceso)
+                    break #Solo cargo 1 proceso por tick
 
+            #I.F.E. = P( memoria no asignada * tiempo que permanece en esa condición). "Mientras haya trabajos esperando parasu ejecución"
+            # Calcular IFE si hay procesos esperando
+            if self.pendientes or any(p.fin is None for p in self.procesos) and self.tiempo != 0:
+                memoria_libre = self.calcular_memoria_libre()
+                print(f"Memoria Libre: {memoria_libre}")
+                self.ife_total += memoria_libre
+                print(f"IFE acumulado: {self.ife_total}")
+                
             # Condición de corte anticipado
             if all(p.fin is not None for p in self.procesos) and not self.pendientes:
                 ultimo_fin = max(p.fin for p in self.procesos if p.fin is not None)

@@ -15,7 +15,7 @@ class Particion:
         self.proceso = proceso
         self.libre = False
         self.t_inicio = tiempo_actual + t_seleccion # No arranca en el arribo, sino recién despues de este tiempo
-        self.t_fin = self.t_inicio + proceso.duracion + t_carga + t_liberacion  
+        self.t_fin = self.t_inicio + proceso.duracion + t_carga + t_liberacion 
         # Tiempo de carga hace que el proceso permanezca más tiempo en memoria 
         # Tiempo de liberacion, cuando un proceso termina, libera recien despues de ese tiempo extra 
         proceso.inicio = self.t_inicio  #instante en que empieza a ejecutarse 

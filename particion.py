@@ -22,6 +22,9 @@ class Particion:
         proceso.asignado = True
         proceso.fin = self.t_fin        #instante en que el proceso termina totalmente (ejecucion + carga + liberación)
 
+        #si un proceso empieza en t=1 y dura 6, ocupa [1,2,3,4,5,6] y queda libre justo en t=7.
+        #Así no se pisan los procesos al liberar y reasignar
+
         #El proceso se asigna en el instante en que llega, pero se ejecuta recién en t_inicio=llegada+t_seleccion
         # t_fin de igual manera, incluye carga y liberación
         # Un proceso recién empieza a usar CPU/Memoria despues del t_seleccion

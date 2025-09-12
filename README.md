@@ -43,16 +43,22 @@ python main.py
 
 ### Ejemplo de ejecución
 ```bash
-Tamaño de memoria disponible: 100
+Tamaño de memoria disponible: 150
 Seleccione estrategia de asignación de particiones:
 1 - first_fit
 2 - best_fit
 3 - next_fit
 4 - worst_fit
-Ingrese el número de la estrategia: 1
-Ingrese tiempo de carga promedio: 2
-Ingrese tiempo de selección de partición: 2
-Ingrese tiempo de liberación de partición: 2
-Ingrese el nombre de la tanda de procesos (ej: tanda1.json): tanda1.json
+Ingrese el número de la estrategia: 4
+Ingrese tiempo de carga promedio: 0
+Ingrese tiempo de selección de partición: 0
+Ingrese tiempo de liberación de partición: 0
+Seleccione la tanda de procesos (1 a 5):
+1 - tanda1.json
+2 - tanda2.json
+3 - tanda3.json
+4 - tanda4.json
+5 - tanda5.json
+Ingrese el número de la tanda: 5
 ```
 ✅ La simulación termina automáticamente cuando ya no quedan procesos activos ni en espera.

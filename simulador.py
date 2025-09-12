@@ -97,13 +97,15 @@ class Simulador:
             print("Estado de memoria:", self.particiones)
 
             # Liberar procesos terminados
-            for part in self.particiones:
+            particiones_a_liberar = [p for p in self.particiones if not p.libre and p.t_fin == self.tiempo]
+            for part in particiones_a_liberar:
                 if not part.libre and part.t_fin == self.tiempo:
                     print(f"Liberando {part.proceso.nombre} de {part}")
                     self._log_evento("LIBERACIÓN", f"{part.proceso.nombre} liberó {part}")
                     part.liberar()
-                    self.merge_particiones()
-                    self._log_memoria()
+            # Merge de todas las particiones libres contiguas
+            self.merge_particiones()
+            self._log_memoria()
 
             # Llegan procesos en este instante
             for proceso in [p for p in self.procesos if p.llegada == self.tiempo]:

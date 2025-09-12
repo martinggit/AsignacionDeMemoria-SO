@@ -3,7 +3,7 @@ from politicas.first_fit import first_fit
 from politicas.best_fit import best_fit
 from politicas.next_fit import next_fit
 from politicas.worst_fit import worst_fit
-
+import os
 #Parametros
 memoria_total = int(input("Tamaño de memoria disponible: "))
 
@@ -35,7 +35,20 @@ t_seleccion = int(input("Ingrese tiempo de selección de partición: "))
 # Tiempo que se tarda en liberar la partición una vez que el proceso termina
 t_liberacion = int(input("Ingrese tiempo de liberación de partición: "))
 
-archivo = input("Ingrese el nombre de la tanda de procesos (ej: tanda1.json): ")
+# Selección de la tanda de procesos
+print("Seleccione la tanda de procesos (1 a 5):")
+for i in range(1, 6):
+    print(f"{i} - tanda{i}.json")
+
+tanda_opcion = input("Ingrese el número de la tanda: ")
+if tanda_opcion not in ["1", "2", "3", "4", "5"]:
+    print("Opción no válida, usando tanda1.json por defecto")
+    tanda_opcion = "1"
+
+archivo = f"tanda{tanda_opcion}.json"
+if not os.path.exists(archivo):
+    print(f"Archivo {archivo} no existe, asegurate de tenerlo en la carpeta")
+    exit(1)
 
 # Crear y correr simulador
 sim = Simulador(

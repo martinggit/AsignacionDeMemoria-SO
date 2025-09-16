@@ -38,3 +38,8 @@ class Particion:
     def __repr__(self):
         estado = "Libre" if self.libre else f"Ocupada por {self.proceso.nombre}"
         return f"[Part {self.id}: inicio={self.inicio}, size={self.size}, {estado}]"
+
+
+# Un proceso se seleccion, se carga y luego empieza a estar asignado en memoria. Cuando termina entra el tiempo de liberacion de particion
+# Ejemplo, t_sellecion=1, t_carga=1 y t_liberacion=1, esos 3 ticks no cuenta como que el proceso está asignado. Por lo que se deberia
+# contar el IFE en esos 3 ticks y así para cada proceso.

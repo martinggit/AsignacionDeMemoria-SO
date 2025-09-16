@@ -113,13 +113,13 @@ class Simulador:
                 self._log_evento("LLEGADA", f"Proceso {proceso.nombre} llega al sistema")
                 self.pendientes.append(proceso)
 
-            # Reintentar asignar pendientes
-            for proceso in list(self.pendientes): 
+            # Reintentar asignar pendientes (batch → FIFO estricto) 
+            if self.pendientes:
+                proceso = self.pendientes[0]  # el primero que está esperando
                 part = self.politica(self.particiones, proceso)
                 if part:
                     self.asignar_particion(part, proceso)
-                    self.pendientes.remove(proceso)
-                    break #Solo cargo 1 proceso por tick
+                    self.pendientes.pop(0)  # lo saco de la cola
 
             #I.F.E. = P( memoria no asignada * tiempo que permanece en esa condición). "Mientras haya trabajos esperando parasu ejecución"
             # Calcular IFE si hay procesos esperando

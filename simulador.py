@@ -15,14 +15,15 @@ class Simulador:
         self.t_carga = t_carga
         self.t_seleccion = t_seleccion
         self.t_liberacion = t_liberacion
-        self.pendientes =[] # Cola de espera, si un proceso no entra lo guardo hasta que se libere memoria
+        self.pendientes = []  # Cola de espera, si un proceso no entra lo guardo hasta que se libere memoria
         self.archivo_log = archivo_log
         self.ife_total = 0  # índice de fragmentación externa 
 
+        # Lista para procesos en fase de selección/carga (no ocupan memoria todavía)
+        self.procesos_en_transicion = []
 
         with open(self.archivo_log, "w", encoding="utf-8") as f:
             f.write("Simulación de eventos de memoria\n\n") 
-
 
     def _log_evento(self, tipo, descripcion):
         with open(self.archivo_log, "a", encoding="utf-8") as f:
@@ -58,21 +59,58 @@ class Simulador:
             idx = self.particiones.index(particion)
             self.particiones.insert(idx + 1, nueva)
 
+        # Calcular tiempos correctamente
+        t_inicio_seleccion = self.tiempo
+        t_fin_seleccion = t_inicio_seleccion + self.t_seleccion
+        t_fin_carga = t_fin_seleccion + self.t_carga
+        t_fin_ejecucion = t_fin_carga + proceso.duracion
+        t_fin_liberacion = t_fin_ejecucion + self.t_liberacion
+
         # evento: selección de partición
         self._log_evento("SELECCIÓN", f"Seleccionada {particion} para {proceso.nombre} (t_sel={self.t_seleccion})")
 
-        # asignar el proceso
-        particion.asignar(proceso, self.tiempo, self.t_carga, self.t_seleccion, self.t_liberacion)
+        # asignar el proceso con los tiempos calculados
+        particion.asignar(proceso, t_fin_carga, t_fin_liberacion)
+        
+        # Agregar a procesos en transición si hay tiempos de selección/carga
+        if self.t_seleccion > 0 or self.t_carga > 0:
+            self.procesos_en_transicion.append({
+                'proceso': proceso,
+                'particion': particion,
+                't_inicio_memoria': t_fin_carga,
+                't_fin_seleccion': t_fin_seleccion
+            })
+            # La partición se marca como "reservada" pero no ocupa memoria hasta t_fin_carga
+            particion.libre = False  # reservada
+            particion.ocupando_memoria = False  # no ocupa memoria todavía
+        else:
+            # Si no hay tiempos adicionales, ocupa memoria inmediatamente
+            particion.ocupando_memoria = True
         
         # evento: carga del proceso (cuando realmente empieza a residir en memoria)
-        inicio_residencia = proceso.inicio + self.t_carga
-        self._log_evento("CARGA", f"{proceso.nombre} cargado; inicio_residencia={inicio_residencia} (t_carga={self.t_carga})")
+        if self.t_carga > 0:
+            self._log_evento("CARGA", f"{proceso.nombre} será cargado en t={t_fin_carga} (t_carga={self.t_carga})")
+        else:
+            self._log_evento("CARGA", f"{proceso.nombre} cargado inmediatamente")
         
         print(f"Asignado {proceso.nombre} en {particion}")
-        print(f"→ Datos del proceso {proceso.nombre}: inicio={proceso.inicio}, fin={proceso.fin}")
+        print(f"→ Datos del proceso {proceso.nombre}: inicio_memoria={t_fin_carga}, fin={t_fin_liberacion}")
         print("Estado de memoria:", self.particiones)
         self._log_evento("ASIGNACIÓN", f"{proceso.nombre} asignado a {particion}")
         self._log_memoria()
+
+    def procesar_transiciones(self):
+        # Procesa los procesos que están en fase de selección/carga
+        for trans in self.procesos_en_transicion[:]:  # copia para poder modificar la lista
+            if self.tiempo == trans['t_inicio_memoria']:
+                # El proceso ahora sí ocupa memoria
+                trans['particion'].ocupando_memoria = True
+                self._log_evento("CARGA_COMPLETADA", f"{trans['proceso'].nombre} ahora ocupa memoria")
+                self.procesos_en_transicion.remove(trans)
+        
+        # Actualizar tiempo actual en particiones para el display
+        for p in self.particiones:
+            p._tiempo_actual = self.tiempo
 
     def merge_particiones(self):
         i = 0
@@ -87,14 +125,37 @@ class Simulador:
             else:
                 i += 1
     
-    def calcular_memoria_libre(self):
+    def calcular_memoria_libre_ife(self):
+        # Calcula memoria libre para IFE (solo particiones completamente libres)
         return sum(p.size for p in self.particiones if p.libre)
     
+    def calcular_memoria_libre(self):
+        # Calcula memoria libre considerando procesos en transición (para debug)
+        memoria_libre = 0
+        for p in self.particiones:
+            if p.libre:
+                memoria_libre += p.size
+            elif not getattr(p, 'ocupando_memoria', True):
+                # Partición reservada pero no ocupando memoria todavía
+                memoria_libre += p.size
+        return memoria_libre
+    
+    def hay_procesos_activos(self):
+        """Verifica si hay procesos ejecutándose o esperando"""
+        # Procesos aún no terminados
+        procesos_no_terminados = [p for p in self.procesos if p.fin is None or p.fin > self.tiempo]
+        # Procesos en cola de espera
+        # Procesos en transición
+        return len(procesos_no_terminados) > 0 or len(self.pendientes) > 0 or len(self.procesos_en_transicion) > 0
+
     def correr(self):
         print(f"Simulación iniciada con {len(self.procesos)} procesos.\n")
         while True:
             print(f"\nTiempo: {self.tiempo}")
             print("Estado de memoria:", self.particiones)
+
+            # Procesar transiciones de selección/carga
+            self.procesar_transiciones()
 
             # Liberar procesos terminados
             particiones_a_liberar = [p for p in self.particiones if not p.libre and p.t_fin == self.tiempo]
@@ -103,6 +164,7 @@ class Simulador:
                     print(f"Liberando {part.proceso.nombre} de {part}")
                     self._log_evento("LIBERACIÓN", f"{part.proceso.nombre} liberó {part}")
                     part.liberar()
+
             # Merge de todas las particiones libres contiguas
             self.merge_particiones()
             self._log_memoria()
@@ -129,11 +191,9 @@ class Simulador:
                 self.ife_total += memoria_libre
                 print(f"IFE acumulado: {self.ife_total}")
                 
-            # Condición de corte anticipado
-            if all(p.fin is not None for p in self.procesos) and not self.pendientes:
-                ultimo_fin = max(p.fin for p in self.procesos if p.fin is not None)
-                if self.tiempo >= ultimo_fin:
-                    break
+            # Condición de corte mejorada
+            if not self.hay_procesos_activos():
+                break
 
             self.tiempo += 1
 
@@ -149,7 +209,7 @@ class Simulador:
             if p.fin is not None:
                 t_retorno = p.fin - p.llegada
                 tiempos_retorno.append(t_retorno)
-                print(f"{p.nombre}: Retorno={t_retorno} (Inicio={p.inicio}, Fin={p.fin}, Llegada={p.llegada})")
+                print(f"{p.nombre}: Retorno={t_retorno} (Inicio_memoria={p.inicio}, Fin={p.fin}, Llegada={p.llegada})")
 
         if tiempos_retorno:
             promedio = sum(tiempos_retorno) / len(tiempos_retorno)
@@ -163,4 +223,3 @@ class Simulador:
         tanda_tr = fin_max - llegada_min
         print(f"\nTiempo de Retorno de la tanda = {tanda_tr}")
         self._log_evento("RESUMEN", f"Tiempo de Retorno de la tanda = {tanda_tr}")
-

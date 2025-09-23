@@ -1,7 +1,12 @@
 [
-  {"nombre": "A", "size": 10, "duracion": 3, "llegada": 1},
-  {"nombre": "B", "size": 15, "duracion": 4, "llegada": 2},
-  {"nombre": "C", "size": 20, "duracion": 2, "llegada": 3},
-  {"nombre": "D", "size": 25, "duracion": 5, "llegada": 4},
-  {"nombre": "E", "size": 80, "duracion": 6, "llegada": 5}
+  {"nombre": "T1", "size": 20, "duracion": 6, "llegada": 1},
+  {"nombre": "T2", "size": 10, "duracion": 10, "llegada": 2},
+  {"nombre": "T3", "size": 40, "duracion": 4, "llegada": 3},
+  {"nombre": "T4", "size": 20, "duracion": 11, "llegada": 4},
+  {"nombre": "T5", "size": 30, "duracion": 2, "llegada": 5},
+  {"nombre": "T6", "size": 20, "duracion": 9, "llegada": 6},
+  {"nombre": "T7", "size": 10, "duracion": 3, "llegada": 7},
+  {"nombre": "T8", "size": 30, "duracion": 2, "llegada": 8},
+  {"nombre": "T9", "size": 50, "duracion": 3, "llegada": 9},
+  {"nombre": "T10", "size": 10, "duracion": 2, "llegada": 10}
 ]

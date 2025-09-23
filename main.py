@@ -35,20 +35,24 @@ t_seleccion = int(input("Ingrese tiempo de selección de partición: "))
 # Tiempo que se tarda en liberar la partición una vez que el proceso termina
 t_liberacion = int(input("Ingrese tiempo de liberación de partición: "))
 
-# Selección de la tanda de procesos
-print("Seleccione la tanda de procesos (1 a 5):")
-for i in range(1, 6):
-    print(f"{i} - tanda{i}.json")
+# Buscar todos los archivos tanda*.json en la carpeta
+archivos_tanda = [f for f in os.listdir(".") if f.startswith("tanda") and f.endswith(".json")]
+
+if not archivos_tanda:
+    print("No se encontraron archivos de tandas en la carpeta.")
+    exit(1)
+
+print("Seleccione la tanda de procesos:")
+for i, archivo in enumerate(archivos_tanda, start=1):
+    print(f"{i} - {archivo}")
 
 tanda_opcion = input("Ingrese el número de la tanda: ")
-if tanda_opcion not in ["1", "2", "3", "4", "5"]:
-    print("Opción no válida, usando tanda1.json por defecto")
-    tanda_opcion = "1"
 
-archivo = f"tanda{tanda_opcion}.json"
-if not os.path.exists(archivo):
-    print(f"Archivo {archivo} no existe, asegurate de tenerlo en la carpeta")
-    exit(1)
+try:
+    archivo = archivos_tanda[int(tanda_opcion) - 1]
+except (ValueError, IndexError):
+    print("Opción no válida, usando la primera tanda encontrada por defecto")
+    archivo = archivos_tanda[0]
 
 # Crear y correr simulador
 sim = Simulador(

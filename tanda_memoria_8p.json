@@ -1,0 +1,10 @@
+[
+  {"nombre": "P1", "size": 200, "duracion": 8, "llegada": 0},
+  {"nombre": "P2", "size": 95, "duracion": 4, "llegada": 1},
+  {"nombre": "P3", "size": 150, "duracion": 5, "llegada": 2},
+  {"nombre": "P4", "size": 70, "duracion": 6, "llegada": 3},
+  {"nombre": "P5", "size": 180, "duracion": 7, "llegada": 5},
+  {"nombre": "P6", "size": 120, "duracion": 3, "llegada": 6},
+  {"nombre": "P7", "size": 250, "duracion": 6, "llegada": 7},
+  {"nombre": "P8", "size": 140, "duracion": 5, "llegada": 9}
+]

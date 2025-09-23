@@ -125,10 +125,6 @@ class Simulador:
             else:
                 i += 1
     
-    def calcular_memoria_libre_ife(self):
-        # Calcula memoria libre para IFE (solo particiones completamente libres)
-        return sum(p.size for p in self.particiones if p.libre)
-    
     def calcular_memoria_libre(self):
         # Calcula memoria libre considerando procesos en transición (para debug)
         memoria_libre = 0

@@ -22,8 +22,33 @@ class Simulador:
         # Lista para procesos en fase de selección/carga (no ocupan memoria todavía)
         self.procesos_en_transicion = []
 
+        # Validar que la memoria sea suficiente para ejecutar la tanda
+        self._validar_memoria_suficiente()
+        
         with open(self.archivo_log, "w", encoding="utf-8") as f:
             f.write("Simulación de eventos de memoria\n\n") 
+
+    def _validar_memoria_suficiente(self):
+        # Verificar que cada proceso individual puede ejecutarse
+        for proceso in self.procesos:
+            if proceso.size > self.memoria_total:
+                print(f"\nERROR: Memoria insuficiente para el proceso {proceso.nombre}")
+                print(f"Proceso requiere: {proceso.size} KB")
+                print(f"Memoria disponible: {self.memoria_total} KB")
+                print("\nLa tanda no puede ejecutarse. Terminando simulación.")
+                exit(1)
+        
+        # Verificar que el primer proceso puede ejecutarse
+        if self.procesos:
+            primer_proceso = min(self.procesos, key=lambda p: p.llegada)
+            if primer_proceso.size > self.memoria_total:
+                print(f"\nERROR: El primer proceso ({primer_proceso.nombre}) requiere más memoria que la disponible")
+                print(f"Proceso requiere: {primer_proceso.size} KB") 
+                print(f"Memoria disponible: {self.memoria_total} KB")
+                print("\nSistema batch terminado por memoria insuficiente.")
+                exit(1)
+        
+        print(f"Validación completada: Todos los procesos pueden ejecutarse en {self.memoria_total} KB de memoria") 
 
     def _log_evento(self, tipo, descripcion):
         with open(self.archivo_log, "a", encoding="utf-8") as f:
@@ -181,7 +206,7 @@ class Simulador:
 
             #I.F.E. = P( memoria no asignada * tiempo que permanece en esa condición). "Mientras haya trabajos esperando parasu ejecución"
             # Calcular IFE si hay procesos esperando
-            if self.pendientes or any(p.fin is None for p in self.procesos) and self.tiempo != 0:
+            if self.pendientes or any(p.fin is None for p in self.procesos):
                 memoria_libre = self.calcular_memoria_libre()
                 print(f"Memoria Libre: {memoria_libre}")
                 self.ife_total += memoria_libre

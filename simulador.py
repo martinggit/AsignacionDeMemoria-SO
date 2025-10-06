@@ -153,7 +153,6 @@ class Simulador:
                 i += 1
     
     def calcular_memoria_libre(self):
-        # Calcula memoria libre considerando procesos en transición (para debug)
         memoria_libre = 0
         for p in self.particiones:
             if p.libre:
@@ -161,6 +160,11 @@ class Simulador:
             elif not getattr(p, 'ocupando_memoria', True):
                 # Partición reservada pero no ocupando memoria todavía
                 memoria_libre += p.size
+            elif hasattr(p, 't_fin_ejecucion') and p.proceso:
+                # Verificar si el proceso ya terminó su ejecución (está en tiempo de liberación)
+                if self.tiempo >= p.t_fin_ejecucion and self.tiempo < p.t_fin:
+                    # El proceso terminó pero está en tiempo de liberación - cuenta como libre para IFE
+                    memoria_libre += p.size
         return memoria_libre
     
     def hay_procesos_activos(self):

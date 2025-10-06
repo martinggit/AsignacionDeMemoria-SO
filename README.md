@@ -34,8 +34,12 @@ El simulador **no requiere instalar librerías externas** (solo Python 3).
 ### Clonar el repositorio
 ```bash
 git clone https://github.com/martinggit/AsignacionDeMemoria-SO.git
+```
+### Ubicarse en el proyecto
+```bash
 cd AsignacionDeMemoria-SO
 ```
+
 ### Se ejecuta con:
 ```bash
 python main.py

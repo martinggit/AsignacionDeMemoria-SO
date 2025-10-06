@@ -120,7 +120,9 @@ class Simulador:
         
         print(f"Asignado {proceso.nombre} en {particion}")
         print(f"→ Datos del proceso {proceso.nombre}: inicio_memoria={t_fin_carga}, fin={t_fin_liberacion}")
-        print("Estado de memoria:", self.particiones)
+        print("Estado de memoria:")
+        for part in self.particiones:
+            print(f"  {part}")
         self._log_evento("ASIGNACIÓN", f"{proceso.nombre} asignado a {particion}")
         self._log_memoria()
 
@@ -171,9 +173,13 @@ class Simulador:
 
     def correr(self):
         print(f"Simulación iniciada con {len(self.procesos)} procesos.\n")
+        print(f"\n{'='*90}")
+        print(f"Tiempo: {self.tiempo}")
+        print('='*60)
         while True:
-            print(f"\nTiempo: {self.tiempo}")
-            print("Estado de memoria:", self.particiones)
+            print("Estado de memoria:")
+            for part in self.particiones:
+                print(f"  {part}")
 
             # Procesar transiciones de selección/carga
             self.procesar_transiciones()
@@ -217,10 +223,16 @@ class Simulador:
                 break
 
             self.tiempo += 1
+            print(f"\n{'='*90}")
+            print(f"Tiempo: {self.tiempo}")
+            print('='*90)
 
         self.merge_particiones()
         print("Estado final de memoria:", self.particiones)
-        print("\n Simulación finalizada")
+        print("\n" + "="*90)
+        print(" SIMULACIÓN FINALIZADA")
+        print("="*90)
+        print("\n--- ESTADÍSTICAS DE PROCESOS ---")
         self._log_evento("FIN", "Simulación finalizada")
 
         # Calcular estadísticas

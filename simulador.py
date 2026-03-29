@@ -18,6 +18,7 @@ class Simulador:
         self.pendientes = []  # Cola de espera, si un proceso no entra lo guardo hasta que se libere memoria
         self.archivo_log = archivo_log
         self.ife_total = 0  # índice de fragmentación externa 
+        self.datos_visuales = []
 
         # Lista para procesos en fase de selección/carga (no ocupan memoria todavía)
         self.procesos_en_transicion = []
@@ -90,6 +91,14 @@ class Simulador:
         t_fin_carga = t_fin_seleccion + self.t_carga
         t_fin_ejecucion = t_fin_carga + proceso.duracion
         t_fin_liberacion = t_fin_ejecucion + self.t_liberacion
+
+        self.datos_visuales.append({
+            "proceso": proceso.nombre,
+            "inicio_tiempo": t_fin_carga,       # Cuándo empieza a ocupar memoria real
+            "duracion": t_fin_liberacion - t_fin_carga, # Ancho del bloque
+            "inicio_memoria": particion.inicio, # En qué dirección empieza
+            "tamano_memoria": particion.size    # Alto del bloque
+        })
 
         # evento: selección de partición
         self._log_evento("SELECCIÓN", f"Seleccionada {particion} para {proceso.nombre} (t_sel={self.t_seleccion})")
